@@ -1,7 +1,7 @@
 const express = require("express");
 const routes = express.Router();
 const { signUp, signIn, verifyOTP, allUsers } = require("../controller/auth.controller.js");
-const { protect, allowRole } = require("../middleware/auth.middleware.js")
+const { protect, allowRoles } = require("../middleware/auth.middleware.js")
 
 //public routes
 routes.post("/signup", signUp);
