@@ -2,10 +2,13 @@ const Product = require("../models/product.model")
 const upload = require("../middleware/uploads.middleware")
 const cloudinary = require("../config/cloudStorage")
 
+const dotenv = require("dotenv");
+require("dotenv").config();
+
 async function addProduct(req, res) {
   const { productName, productPrice, productCategory } = req.body;
 
-  if (!productName || !productPrice || !Array.isArray(productCategory)) {
+  if (!productName || !productPrice || !productCategory) {
     return res.status(400).send("All product details required");
   }
   if (!req.file) {
