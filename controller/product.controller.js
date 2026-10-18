@@ -1,42 +1,50 @@
-const Product = require("../models/product.model")
-const upload = require("../middleware/uploads.middleware")
-const cloudinary = require("../config/cloudStorage")
-
-const dotenv = require("dotenv");
-require("dotenv").config();
+const Product = require("../models/product.model");
 
 async function addProduct(req, res) {
-  const { productName, productPrice, productCategory } = req.body;
+  try {
+    const { productName, productPrice, productCategory } = req.body;
 
-  if (!productName || !productPrice || !productCategory) {
-    return res.status(400).send("All product details required");
+    if (!productName || !productPrice || !productCategory) {
+      return res.status(400).json({
+        message: "All product details required",
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        message: "Product image is required",
+      });
+    }
+
+    const newProduct = new Product({
+      productName,
+      productPrice,
+      productCategory,
+      productImage: req.file.path,
+    });
+
+    await newProduct.save();
+
+    return res.status(201).json({
+      message: "Product added successfully",
+      product: newProduct,
+    });
+  } catch (error) {
+    console.error(error);
   }
-  if (!req.file) {
-    return res.status(400).send("Product image is required");
-  }
-
-  const base64 = req.file.buffer.toString("base64");
-  const dataUri = `data:${req.file.mimetype};base64,${base64}`;
-
-  const result = await cloudinary.uploader.upload(dataUri, {
-    folder: "my-app/uploads", // organises files inside your Cloudinary account
-  });
-
-  const newProduct = new product({
-    productName: productName,
-    produtPrice: productPrice,
-    productImage: result.secure_url,
-    productCategory: productCategory,
-  })
-
-  newProduct.save()
-
-  res.status(200).json({ message: "product added successfully" });
 }
 
 async function products(req, res) {
-  const products = await Products.find()
-  res.status(200).json({ message: "product fetched successfully", products });
+  try {
+    const allProducts = await Product.find();
+
+    return res.status(200).json({
+      message: "Products fetched successfully",
+      products: allProducts,
+    });
+  } catch (error) {
+    console.error(error)
+  }
 }
 
-module.exports = { addProduct, products }
+module.exports = { addProduct, products };
